@@ -1,27 +1,29 @@
 #include "canvas.h"
 #include "displayManager.h"
 #include "inputRegistry.h"
-
+#include "startMenu.h"
 
 bool cursorVis = false;
 unsigned long lastFlash = 0;
-const unsigned long CURSOR_FLASH_TIME = 1000;
+const unsigned long CURSOR_FLASH_TIME = 500;
 
 enum Mode
 {
   DRAW_MODE,
   COLORPICK_MODE,
-  MENU_MODE
+  TOOL_MODE,
+  START_MENU
+
 };
-Mode currentMo = DRAW_MODE;
+Mode currentMo = START_MENU;
 
 void setup() 
 {
-  startDisplay();
+  tftDisplay.begin();
   initCanvas();
   setupInputs();
-  updateCanvasDisp(pixels);
-  displayPalette(palette, palette_pos, palette_size);
+  openStartMenu();  
+
 }
 
 void loop() 
@@ -35,12 +37,16 @@ void loop()
   switch(currentMo) 
   {
     case DRAW_MODE:
+            
             DMMovementIn();
             DMButtonPresses();
             break;
     case COLORPICK_MODE:
             CPICKMoveIn();
             CPICKButPress(); 
+            break;
+    case START_MENU:
+            SMButPress();
             break;
   }
 
@@ -53,9 +59,7 @@ void loop()
 
   handleCursorFlash();
   if(old_p != palette_pos)
-  {
     displayPalette(palette, palette_pos, palette_size);
-  }
 }
 
 void DMMovementIn() //draw-mode Movement inputs 
@@ -68,6 +72,14 @@ void DMMovementIn() //draw-mode Movement inputs
     moveCursor('L');
   if (inputs[R_IN].wasPressed)
     moveCursor('R');
+  if (inputs[F_IN].isHeld)
+    jumpCursor('F');
+  if (inputs[B_IN].isHeld)
+    jumpCursor('B');
+  if (inputs[L_IN].isHeld)
+    jumpCursor('L');
+  if (inputs[R_IN].isHeld)
+    jumpCursor('R');
 }
 
 void DMButtonPresses()
@@ -78,7 +90,10 @@ void DMButtonPresses()
     paintPixel();
   }
   if(inputs[MENU_IN].wasPressed)
-    swapMode();
+    DrawToColorMode();
+
+  if(inputs[DEL_IN].wasPressed)
+    deleteColor();
 }
 
 
@@ -93,27 +108,44 @@ void CPICKMoveIn()
 void CPICKButPress()
 {
   if(inputs[MENU_IN].wasPressed)
-    swapMode();
+    DrawToColorMode();
 }
 
 void handleCursorFlash()
 {
-  if(millis() - lastFlash >= CURSOR_FLASH_TIME)
+  switch(currentMo)
   {
-    lastFlash = millis();
-    cursorVis = !cursorVis;
+    case DRAW_MODE:
+            if(millis() - lastFlash >= CURSOR_FLASH_TIME)
+            {
+              lastFlash = millis();
+              cursorVis = !cursorVis;
 
-    if(cursorVis)
-      flashCursorOn(cur_x, cur_y);
-    else
-      flashCursorOff(cur_x, cur_y, pixels[cur_y][cur_x]);
+              if(cursorVis)
+                flashCursorOn(cur_x, cur_y);
+              else
+                flashCursorOff(cur_x, cur_y, pixels[cur_y][cur_x]);
+            }
+            break;
   }
 }
 
-void swapMode() //swap from draw to color pick for now, menu comes later
+void DrawToColorMode() //swap from draw to color pick for now, menu comes later
 {
-  if(currentMo == DRAW_MODE)
-    currentMo = COLORPICK_MODE;
-  else
-    currentMo = DRAW_MODE;
+  currentMo = (currentMo == DRAW_MODE) ? COLORPICK_MODE : DRAW_MODE;
+}
+
+void startMenutoDraw()
+{
+  currentMo = (currentMo == START_MENU) ? DRAW_MODE : START_MENU;
+}
+
+void SMButPress()
+{
+  if(inputs[M_IN].wasPressed)
+  {
+    startMenutoDraw();
+    updateCanvasDisp(pixels);
+    displayPalette(palette, palette_pos, palette_size);
+  }
 }

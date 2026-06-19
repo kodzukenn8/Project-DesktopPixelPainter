@@ -1,6 +1,5 @@
 #ifndef INPUTREGISTRY_H
 #define INPUTREGISTRY_H
-
 #include <Arduino.h>
 
 enum InputID
@@ -23,12 +22,12 @@ struct inputState
   bool wasPressed;
   bool isHeld;
   bool lastState;
-  unsigned long pressStart;
+  unsigned long startPressTime;
 };
 
 const unsigned long HOLD_TIME = 500;
 
-inputState inputs[INPUT_COUNT] = //array of structs, each button is stcrut
+inputState inputs[INPUT_COUNT] = //array of structs, each button gets a struct created
 {
   {3},   // F
   {4},   // B
@@ -42,9 +41,7 @@ inputState inputs[INPUT_COUNT] = //array of structs, each button is stcrut
 void setupInputs()
 {
   for(int i = 0; i < INPUT_COUNT; i++)
-  {
     pinMode(inputs[i].pin, INPUT_PULLUP);
-  }
 }
 
 void updateInputs()
@@ -59,22 +56,17 @@ void updateInputs()
     if(inputs[i].lastState == HIGH && currentState == LOW)
     {
       inputs[i].wasPressed = true;
-      inputs[i].pressStart = millis();
+      inputs[i].startPressTime = millis();
     }
 
     if(currentState == LOW)
     {
       inputs[i].pressed = true;
-
-      if(millis() - inputs[i].pressStart >= HOLD_TIME)
-      {
+      if(millis() - inputs[i].startPressTime >= HOLD_TIME)
         inputs[i].isHeld = true;
-      }
     }
     else
-    {
       inputs[i].pressed = false;
-    }
 
     inputs[i].lastState = currentState;
   }
