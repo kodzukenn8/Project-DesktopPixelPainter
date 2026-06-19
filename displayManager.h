@@ -9,8 +9,6 @@
 #define TFT_RST   8
 Adafruit_GC9A01A tftDisplay(TFT_CS, TFT_DC, TFT_RST);
 
-int pixel_size = 160 / canvas_size;
-
 void drawPixel(int c_x, int c_y, uint16_t color)
 {
   tftDisplay.fillRect(40 + c_x * pixel_size, 40 + c_y * pixel_size, pixel_size, pixel_size, color);
@@ -36,7 +34,7 @@ void updateCanvasDisp(const uint16_t pixelArray[32][32])
   }
 }
 
-void displayPalette(const uint16_t pal[], const int p_pos, const int p_size)
+void displayPalette(const uint16_t pal[], const int p_pos, const int p_size) //p_size is palette size, not pixel_size (maybe change it up)
 {
   int startX = 95;
   int y = 215;
@@ -54,7 +52,5 @@ void displayPalette(const uint16_t pal[], const int p_pos, const int p_size)
   }
   tftDisplay.drawRect(115, 215, 10, 10, 0x0000);
 }
-
-
 
 #endif 

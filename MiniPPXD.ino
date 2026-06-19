@@ -20,6 +20,7 @@ Mode currentMo = START_MENU;
 void setup() 
 {
   tftDisplay.begin();
+  tftDisplay.setRotation(1);
   initCanvas();
   setupInputs();
   openStartMenu();  
@@ -127,6 +128,18 @@ void handleCursorFlash()
                 flashCursorOff(cur_x, cur_y, pixels[cur_y][cur_x]);
             }
             break;
+    case START_MENU:
+            if(millis() - lastFlash >= CURSOR_FLASH_TIME)
+            {
+              lastFlash = millis();
+              cursorVis = !cursorVis;
+
+              if(cursorVis)
+                flashSMCursorOn();
+              else
+                flashSMCursorOff();
+            }
+
   }
 }
 
@@ -144,8 +157,15 @@ void SMButPress()
 {
   if(inputs[M_IN].wasPressed)
   {
+    setCanvasSize();
+    initCanvas();
     startMenutoDraw();
     updateCanvasDisp(pixels);
     displayPalette(palette, palette_pos, palette_size);
   }
-}
+  if(inputs[R_IN].wasPressed)
+    x32 = true;
+  if(inputs[L_IN].wasPressed)
+    x32 = false;
+
+} 

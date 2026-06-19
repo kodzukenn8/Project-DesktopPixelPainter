@@ -2,11 +2,12 @@
 #define CANVAS_H
 #include <Arduino.h>
 
-bool x32 = false; //onyl two options 32x32 or 16x16, false is 16x16
-int canvas_size = 16;
+bool x32 = true; //onyl two options 32x32 or 16x16, false is 16x16
+int canvas_size = 32;
 uint16_t pixels[32][32]; //canvas
 int palette_size = 16;
 uint16_t palette[] = {0x0821, 0x2927, 0x39e8, 0x726b, 0x7c0e, 0xa496, 0xce37, 0xef7c, 0xB2C8, 0xCD07, 0xE6AA, 0x4D68, 0x2BAA, 0x3233, 0x443E, 0x85DF}; //color palette, 16 colors for now possibly expand later, palette from lospec: https://lospec.com/palette-list/no-space-16
+int pixel_size;
 
 int cur_x = 0;
 int cur_y = 0;
@@ -91,10 +92,16 @@ void changePalettePos(bool dir) //palette is a 1-d array so L and R are needed, 
 
 void setCanvasSize()
 {
-  if(x32)
-    canvas_size = 32;
-  else
-    canvas_size = 16; 
+    if(x32)
+    {
+        canvas_size = 32;
+        pixel_size = 5;
+    }
+    else
+    {
+        canvas_size = 16;
+        pixel_size = 10;
+    }
 }
 
 #endif

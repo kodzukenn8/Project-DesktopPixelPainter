@@ -17,5 +17,21 @@ void openStartMenu()
   tftDisplay.setCursor(150,122);
   tftDisplay.print("32x32");
 
-  tftDisplay.drawLine(32,140,86,140, GC9A01A_WHITE);
+}
+
+void flashSMCursorOn()
+{
+  if(x32)
+    tftDisplay.drawLine(152,140,206,140, GC9A01A_WHITE);
+  else
+    tftDisplay.drawLine(32,140,86,140, GC9A01A_WHITE);
+
+}
+
+void flashSMCursorOff()
+{
+  if(x32)
+    tftDisplay.drawLine(152,140,206,140, 0xa691);
+  else
+    tftDisplay.drawLine(32,140,86,140, 0xa691);
 }
